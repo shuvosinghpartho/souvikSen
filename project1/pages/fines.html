@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="en" x-data="{ isDarkMode: localStorage.getItem('isDarkMode') === 'true' }" :class="{ 'dark': isDarkMode }">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Issue Fine - Traffic Token System</title>
+
+    <!-- CDN Libraries -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Source+Code+Pro:wght@500&display=swap" rel="stylesheet">
+
+    <!-- Custom Tailwind & CSS -->
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Roboto', 'sans-serif'],
+                        mono: ['Source Code Pro', 'monospace'],
+                    },
+                    backdropBlur: { 'xl': '24px' }
+                }
+            }
+        }
+    </script>
+    <style>
+        body { transition: background-color 0.3s ease-in-out; }
+        .main-bg-light { background-image: linear-gradient(120deg, #a1c4fd 0%, #c2e9fb 100%); }
+        .main-bg-dark { background-image: linear-gradient(to top, #09203f 0%, #537895 100%); }
+        .liquid-glass {
+            background: rgba(255, 255, 255, 0.25);
+            -webkit-backdrop-filter: blur(12px);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+        .dark .liquid-glass {
+            background: rgba(17, 25, 40, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: rgba(0,0,0,0.2); border-radius: 10px; }
+        .dark ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.2); }
+    </style>
+</head>
+
+<body class="font-sans" :class="isDarkMode ? 'main-bg-dark' : 'main-bg-light'">
+
+    <div class="flex h-screen overflow-hidden text-gray-800 dark:text-gray-200">
+        
+        <!-- ================== SIDEBAR ================== -->
+        <aside class="w-64 flex-shrink-0 p-5 hidden md:block">
+            <div class="flex items-center gap-3 mb-10">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-9 w-9 text-blue-800 dark:text-blue-300" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 1.944A11.954 11.954 0 012.166 5.026a11.954 11.954 0 01-1.122 6.134A11.954 11.954 0 0110 18.056a11.954 11.954 0 019.032-6.896 11.954 11.954 0 01-1.122-6.134A11.954 11.954 0 0110 1.944zM9 11.586l-2.293-2.293a1 1 0 00-1.414 1.414l3 3a1 1 0 001.414 0l5-5a1 1 0 10-1.414-1.414L9 11.586z" clip-rule="evenodd" /></svg>
+                <h1 class="text-xl font-bold text-gray-900 dark:text-white">TrafficToken</h1>
+            </div>
+            <nav class="space-y-3">
+                <a href="../index.html" class="flex items-center gap-3 p-3 text-base rounded-lg hover:bg-white/40 dark:hover:bg-gray-700/50 transition-all duration-200"><span>Dashboard</span></a>
+                <a href="./inspections.html" class="flex items-center gap-3 p-3 text-base rounded-lg hover:bg-white/40 dark:hover:bg-gray-700/50 transition-all duration-200"><span>Inspection</span></a>
+                <a href="./history.html" class="flex items-center gap-3 p-3 text-base rounded-lg hover:bg-white/40 dark:hover:bg-gray-700/50 transition-all duration-200"><span>History</span></a>
+                <a href="./analytics.html" class="flex items-center gap-3 p-3 text-base rounded-lg hover:bg-white/40 dark:hover:bg-gray-700/50 transition-all duration-200"><span>Analytics</span></a>
+                <!-- This is the new active link -->
+                <a href="./fines.html" class="flex items-center gap-3 p-3 text-base rounded-lg font-semibold bg-white/50 dark:bg-gray-700/60 transition-all duration-200"><span>Fines</span></a>
+                <a href="./settings.html" class="flex items-center gap-3 p-3 text-base rounded-lg hover:bg-white/40 dark:hover:bg-gray-700/50 transition-all duration-200"><span>Settings</span></a>
+            </nav>
+        </aside>
+
+        <!-- ================== MAIN CONTENT ================== -->
+        <main class="flex-1 p-4 md:p-8 overflow-y-auto">
+            <header class="flex justify-between items-center mb-8">
+                <div>
+                    <h2 class="text-3xl font-bold text-gray-900 dark:text-white">Issue & Manage Fines</h2>
+                    <p class="text-gray-600 dark:text-gray-400">Create a new fine and generate a payment receipt.</p>
+                </div>
+            </header>
+            
+            <div x-data="{
+                view: 'form', // Can be 'form' or 'receipt'
+                vehicleId: 'B-176-XYZ',
+                location: 'Main St & 1st Ave',
+                notes: '',
+                violations: [
+                    { id: 'none', text: 'Select a violation...', amount: 0 },
+                    { id: 'sp_1', text: 'Speeding (1-15 mph over)', amount: 75 },
+                    { id: 'sp_2', text: 'Speeding (16-30 mph over)', amount: 150 },
+                    { id: 'rl_1', text: 'Running a red light', amount: 120 },
+                    { id: 'pk_1', text: 'Illegal Parking', amount: 50 },
+                    { id: 'ph_1', text: 'Using phone while driving', amount: 100 }
+                ],
+                selectedViolation: 'none',
+                get fineAmount() {
+                    const violation = this.violations.find(v => v.id === this.selectedViolation);
+                    return violation ? violation.amount : 0;
+                },
+                get violationText() {
+                    const violation = this.violations.find(v => v.id === this.selectedViolation);
+                    return violation ? violation.text : 'N/A';
+                },
+                issueFine() {
+                    if (this.selectedViolation !== 'none') {
+                        this.view = 'receipt';
+                    } else {
+                        alert('Please select a violation type.');
+                    }
+                },
+                issueAnother() {
+                    this.view = 'form';
+                    this.vehicleId = '';
+                    this.location = '';
+                    this.notes = '';
+                    this.selectedViolation = 'none';
+                }
+            }">
+                
+                <!-- FORM VIEW -->
+                <div x-show="view === 'form'" x-transition class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    <!-- Left: Form -->
+                    <div class="liquid-glass rounded-2xl p-6 md:p-8 shadow-lg">
+                        <h3 class="text-xl font-bold text-gray-900 dark:text-white mb-6">Fine Details</h3>
+                        <form @submit.prevent="issueFine()" class="space-y-4">
+                            <div>
+                                <label class="font-semibold text-sm text-gray-700 dark:text-gray-300">Vehicle ID</label>
+                                <input x-model="vehicleId" type="text" required class="mt-2 w-full px-4 py-2 bg-white/30 dark:bg-black/20 rounded-lg border-none focus:ring-2 focus:ring-blue-500 text-gray-900 dark:text-white">
+                            </div>
+                            <div>
+                                <label class="font-semibold text-sm text-gray-700 dark:text-gray-300">Violation Type</label>
+                                <select x-model="selectedViolation" class="mt-2 w-full px-4 py-2 bg-white/30 dark:bg-black/20 rounded-lg border-none focus:ring-2 focus:ring-blue-500 text-gray-900 dark:text-white">
+                                    <template x-for="violation in violations" :key="violation.id">
+                                        <option :value="violation.id" x-text="`${violation.text} ($${violation.amount})`"></option>
+                                    </template>
+                                </select>
+                            </div>
+                             <div>
+                                <label class="font-semibold text-sm text-gray-700 dark:text-gray-300">Location</label>
+                                <input x-model="location" type="text" required class="mt-2 w-full px-4 py-2 bg-white/30 dark:bg-black/20 rounded-lg border-none focus:ring-2 focus:ring-blue-500 text-gray-900 dark:text-white">
+                            </div>
+                            <div>
+                                <label class="font-semibold text-sm text-gray-700 dark:text-gray-300">Officer Notes (Optional)</label>
+                                <textarea x-model="notes" rows="3" placeholder="e.g., Heavy traffic, driver was distracted..." class="mt-2 w-full px-4 py-2 bg-white/30 dark:bg-black/20 rounded-lg border-none focus:ring-2 focus:ring-blue-500 text-gray-900 dark:text-white"></textarea>
+                            </div>
+                            <button type="submit" class="w-full mt-4 py-3 text-lg font-bold text-white bg-blue-600 rounded-lg hover:bg-blue-700 active:scale-95 transition-all duration-200 shadow-lg hover:shadow-blue-500/50">
+                                Issue Fine & Generate Receipt
+                            </button>
+                        </form>
+                    </div>
+
+                    <!-- Right: Live Preview -->
+                    <div class="liquid-glass rounded-2xl p-6 md:p-8 shadow-lg">
+                        <h3 class="text-xl font-bold text-gray-900 dark:text-white mb-6">Receipt Preview</h3>
+                        <div class="border border-white/30 dark:border-gray-700/50 rounded-lg p-6 font-mono text-sm text-gray-800 dark:text-gray-200">
+                            <h4 class="text-center font-sans font-bold text-lg mb-4">TRAFFIC VIOLATION NOTICE</h4>
+                            <div class="space-y-2">
+                                <p><strong>Vehicle ID:</strong> <span x-text="vehicleId || '...' "></span></p>
+                                <p><strong>Date:</strong> <span>November 6, 2025</span></p>
+                                <p><strong>Location:</strong> <span x-text="location || '...' "></span></p>
+                                <hr class="border-white/30 dark:border-gray-700/50 my-2">
+                                <p><strong>Violation:</strong></p>
+                                <p class="font-sans" x-text="violationText"></p>
+                                <hr class="border-white/30 dark:border-gray-700/50 my-2">
+                                <div class="text-right font-sans">
+                                    <p class="text-lg">Fine Amount:</p>
+                                    <p class="text-3xl font-bold text-gray-900 dark:text-white" x-text="`$${fineAmount}`"></p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- RECEIPT VIEW -->
+                <div x-show="view === 'receipt'" x-transition class="liquid-glass max-w-2xl mx-auto rounded-2xl p-6 md:p-8 shadow-lg text-center">
+                    <div class="w-16 h-16 bg-green-500/20 text-green-500 rounded-full flex items-center justify-center mx-auto">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-10 w-10" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" /></svg>
+                    </div>
+                    <h3 class="text-2xl font-bold text-gray-900 dark:text-white mt-4">Fine Issued Successfully</h3>
+                    <p class="text-gray-600 dark:text-gray-400">Receipt generated. The driver can scan the QR code to pay online.</p>
+                    
+                    <!-- QR Code and Payment Info -->
+                    <div class="my-6 p-4 bg-white dark:bg-gray-800 rounded-lg inline-block">
+                        <!-- Placeholder QR Code SVG -->
+                        <svg class="w-48 h-48" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg"><path fill="#111827" d="M10 10h20v20h-20z m60 0h20v20h-20z m-60 60h20v20h-20z M15 15h10v10h-10z m60 0h10v10h-10z m-60 60h10v10h-10z M40 10h10v10h-10z m20 0h10v10h-10z m-10 10h10v10h-10z m-20 20h10v10h-10z m10 10h10v10h-10z m10-10h10v10h-10z m10 0h10v10h-10z M40 40h10v10h-10z m-20 20h10v10h-10z m10 10h10v10h-10z m10 0h10v10h-10z M40 70h10v10h-10z m20 10h10v10h-10z m10-20h10v10h-10z m0 10h10v10h-10z m10-20h10v10h-10z m0 10h10v10h-10z m-40 0h10v10h-10z m-10-10h10v10h-10z"/></svg>
+                    </div>
+                    <p class="font-mono text-gray-800 dark:text-gray-200">Ref: <span x-text="`FN-${Math.floor(100000 + Math.random() * 900000)}`"></span></p>
+                    <p class="font-bold text-4xl mt-2 text-gray-900 dark:text-white" x-text="`$${fineAmount}`"></p>
+                    
+                    <button @click="issueAnother()" class="mt-8 w-full py-3 font-semibold text-gray-700 dark:text-gray-200 bg-white/40 dark:bg-black/30 rounded-xl hover:bg-white/60 dark:hover:bg-black/40 transition">
+                        Issue Another Fine
+                    </button>
+                </div>
+
+            </div>
+        </main>
+    </div>
+
+</body>
+</html>
