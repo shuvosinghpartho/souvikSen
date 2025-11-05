@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="en" x-data="{ isDarkMode: localStorage.getItem('isDarkMode') === 'true' }" :class="{ 'dark': isDarkMode }">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Verification - Traffic Token System</title>
+
+    <!-- 1. Tailwind CSS via CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- 2. Alpine.js (for interactivity) via CDN -->
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+
+    <!-- Google Fonts (Roboto) -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+
+    <!-- Custom Tailwind Configuration -->
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Roboto', 'sans-serif'],
+                    },
+                    backdropBlur: { 'xl': '24px' }
+                }
+            }
+        }
+    </script>
+    
+    <style>
+        /* Shared styles from the original design */
+        body { transition: background-color 0.3s ease-in-out; }
+        .main-bg-light { background-image: linear-gradient(120deg, #a1c4fd 0%, #c2e9fb 100%); }
+        .main-bg-dark { background-image: linear-gradient(to top, #09203f 0%, #537895 100%); }
+        .liquid-glass {
+            background: rgba(255, 255, 255, 0.25);
+            -webkit-backdrop-filter: blur(12px);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+        .dark .liquid-glass {
+            background: rgba(17, 25, 40, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: rgba(0,0,0,0.2); border-radius: 10px; }
+        .dark ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.2); }
+    </style>
+</head>
+
+<body class="font-sans" :class="isDarkMode ? 'main-bg-dark' : 'main-bg-light'">
+
+    <div class="flex h-screen overflow-hidden text-gray-800 dark:text-gray-200">
+        
+        <!-- =================================================================
+        SIDEBAR
+        ================================================================== -->
+        <aside class="w-64 flex-shrink-0 p-5 hidden md:block">
+            <div class="flex items-center gap-3 mb-10">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-9 w-9 text-blue-800 dark:text-blue-300" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 1.944A11.954 11.954 0 012.166 5.026a11.954 11.954 0 01-1.122 6.134A11.954 11.954 0 0110 18.056a11.954 11.954 0 019.032-6.896 11.954 11.954 0 01-1.122-6.134A11.954 11.954 0 0110 1.944zM9 11.586l-2.293-2.293a1 1 0 00-1.414 1.414l3 3a1 1 0 001.414 0l5-5a1 1 0 10-1.414-1.414L9 11.586z" clip-rule="evenodd" /></svg>
+                <h1 class="text-xl font-bold text-gray-900 dark:text-white">TrafficToken</h1>
+            </div>
+            <nav class="space-y-3">
+                <a href="../index.html" class="flex items-center gap-3 p-3 text-base rounded-lg hover:bg-white/40 dark:hover:bg-gray-700/50 transition-all duration-200">
+                    <span>Dashboard</span>
+                </a>
+                <a href="./inspections.html" class="flex items-center gap-3 p-3 text-base rounded-lg hover:bg-white/40 dark:hover:bg-gray-700/50 transition-all duration-200">
+                    <span>Inspection</span>
+                </a>
+                <!-- Active link is now History -->
+                <a href="./history.html" class="flex items-center gap-3 p-3 text-base rounded-lg hover:bg-white/40 dark:hover:bg-gray-700/50 transition-all duration-200 font-semibold bg-white/50 dark:bg-gray-700/60">
+                    <span>History</span>
+                </a>
+                <a href="./analytics.html" class="flex items-center gap-3 p-3 text-base rounded-lg hover:bg-white/40 dark:hover:bg-gray-700/50 transition-all duration-200">
+                    <span>Analytics</span>
+                </a>
+                <a href="./settings.html" class="flex items-center gap-3 p-3 text-base rounded-lg hover:bg-white/40 dark:hover:bg-gray-700/50 transition-all duration-200">
+                    <span>Settings</span>
+                </a>
+            </nav>
+        </aside>
+
+        <!-- =================================================================
+        MAIN CONTENT
+        ================================================================== -->
+        <main class="flex-1 p-4 md:p-8 overflow-y-auto">
+            <!-- Header -->
+            <header class="flex justify-between items-center mb-8">
+                <div>
+                    <h2 class="text-3xl font-bold text-gray-900 dark:text-white">Vehicle Verification</h2>
+                    <p class="text-gray-600 dark:text-gray-400">Enter a token or scan a QR code to begin.</p>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <button @click="isDarkMode = !isDarkMode; localStorage.setItem('isDarkMode', isDarkMode)" class="p-2 rounded-full hover:bg-white/40 dark:hover:bg-gray-700/50 transition-colors">
+                        <svg x-show="!isDarkMode" xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" /></svg>
+                        <svg x-show="isDarkMode" xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" /></svg>
+                    </button>
+                    <div class="relative">
+                        <img class="h-10 w-10 rounded-full object-cover" src="https://i.pravatar.cc/100?u=jane" alt="Officer Avatar">
+                        <span class="absolute bottom-0 right-0 block h-2.5 w-2.5 rounded-full bg-green-400 ring-2 ring-white dark:ring-gray-800"></span>
+                    </div>
+                </div>
+            </header>
+
+            <!-- Verification Card -->
+            <div 
+                x-data="{ status: 'idle', vehicleId: 'B-176-XYZ' }" 
+                @keydown.enter.window="if (status === 'idle') { status = 'loading'; setTimeout(() => { status = Math.random() > 0.4 ? 'success' : 'error' }, 1500) }"
+                class="max-w-2xl mx-auto mt-10"
+            >
+                <!-- Input and Action Card -->
+                <div class="liquid-glass rounded-2xl p-6 md:p-8 text-center shadow-lg transition-all duration-300">
+                    <h3 class="text-xl font-bold text-gray-900 dark:text-white">Verify Vehicle Token</h3>
+                    <p class="text-gray-600 dark:text-gray-400 mt-2 mb-6">Enter the vehicle plate number or token ID.</p>
+                    
+                    <div class="relative w-full mb-4">
+                        <input type="text" x-model="vehicleId" placeholder="e.g., ABC-123-XYZ" class="w-full pl-4 pr-14 py-4 text-lg bg-white/30 dark:bg-black/20 rounded-xl border-none focus:ring-2 focus:ring-blue-500 transition-shadow text-center text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400">
+                        <button class="absolute top-1/2 -translate-y-1/2 right-3 p-2 rounded-full hover:bg-white/50 dark:hover:bg-black/30 transition-colors">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-7 w-7 text-gray-700 dark:text-gray-300" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707m12.728 0l-.707.707M15 12a3 3 0 11-6 0 3 3 0 016 0z" /><path d="M2 12h.01M6 12h.01M18 12h.01" /></svg>
+                        </button>
+                    </div>
+
+                    <button @click="status = 'loading'; setTimeout(() => { status = Math.random() > 0.4 ? 'success' : 'error' }, 1500)" class="w-full py-4 text-lg font-bold text-white bg-blue-600 rounded-xl hover:bg-blue-700 active:scale-95 transition-all duration-200 shadow-lg hover:shadow-blue-500/50">
+                        Verify Vehicle
+                    </button>
+                </div>
+
+                <!-- Dynamic Feedback Section -->
+                <div class="mt-6 min-h-[250px]">
+                    <!-- Loading Spinner -->
+                    <div x-show="status === 'loading'" x-transition class="flex flex-col items-center justify-center h-full">
+                        <svg class="animate-spin h-12 w-12 text-gray-700 dark:text-gray-300" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
+                        <p class="mt-4 text-lg font-medium text-gray-700 dark:text-gray-300">Verifying...</p>
+                    </div>
+
+                    <!-- Success State -->
+                    <div x-show="status === 'success'" x-transition:enter.duration.500ms class="liquid-glass rounded-2xl p-6 md:p-8 text-center border-2 border-green-500/50 shadow-lg">
+                        <div class="w-16 h-16 bg-green-500/20 text-green-500 rounded-full flex items-center justify-center mx-auto">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-10 w-10" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" /></svg>
+                        </div>
+                        <h3 class="text-2xl font-bold text-gray-900 dark:text-white mt-4">Vehicle Verified</h3>
+                        <p class="text-green-800 dark:text-green-300 font-semibold mt-1" x-text="`ID: ${vehicleId}`"></p>
+                        <div class="text-left mt-6 space-y-2 text-gray-700 dark:text-gray-300">
+                            <p><strong>Owner:</strong> John Doe</p>
+                            <p><strong>Make/Model:</strong> Tesla Model 3</p>
+                            <p><strong>Status:</strong> All Clear</p>
+                        </div>
+                        <button @click="status = 'idle'" class="mt-6 w-full py-3 font-semibold text-gray-700 dark:text-gray-200 bg-white/40 dark:bg-black/30 rounded-xl hover:bg-white/60 dark:hover:bg-black/40 transition">Verify Another</button>
+                    </div>
+
+                    <!-- Error State -->
+                    <div x-show="status === 'error'" x-transition:enter.duration.500ms class="liquid-glass rounded-2xl p-6 md:p-8 text-center border-2 border-red-500/50 shadow-lg">
+                        <div class="w-16 h-16 bg-red-500/20 text-red-500 rounded-full flex items-center justify-center mx-auto">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-10 w-10" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 3.01-1.742 3.01H4.42c-1.53 0-2.493-1.676-1.743-3.01l5.58-9.92zM10 13a1 1 0 110-2 1 1 0 010 2zm-1-4a1 1 0 011-1h.01a1 1 0 110 2H10a1 1 0 01-1-1z" clip-rule="evenodd" /></svg>
+                        </div>
+                        <h3 class="text-2xl font-bold text-gray-900 dark:text-white mt-4">Vehicle Flagged</h3>
+                         <p class="text-red-800 dark:text-red-300 font-semibold mt-1" x-text="`ID: ${vehicleId}`"></p>
+                        <div class="text-left mt-6 space-y-2 text-gray-700 dark:text-gray-300">
+                           <p><strong>Owner:</strong> Jane Smith</p>
+                           <p><strong>Make/Model:</strong> Ford F-150</p>
+                           <p><strong>Reason:</strong> <span class="font-bold">Outstanding warrant</span></p>
+                        </div>
+                        <button @click="status = 'idle'" class="mt-6 w-full py-3 font-semibold text-gray-700 dark:text-gray-200 bg-white/40 dark:bg-black/30 rounded-xl hover:bg-white/60 dark:hover:bg-black/40 transition">Verify Another</button>
+                    </div>
+                </div>
+            </div>
+
+        </main>
+    </div>
+
+</body>
+</html>

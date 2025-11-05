@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html lang="en" x-data="{ isDarkMode: localStorage.getItem('isDarkMode') === 'true' }" :class="{ 'dark': isDarkMode }">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Traffic Token Verification System</title>
+
+    <!-- 1. Tailwind CSS via CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- 2. Alpine.js (for interactivity) via CDN -->
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    
+    <!-- 3. Chart.js (for analytics graphs) via CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <!-- Google Fonts (Roboto) -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+
+    <!-- Custom Tailwind Configuration -->
+    <script>
+        tailwind.config = {
+            darkMode: 'class', // Enable dark mode based on a parent class
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Roboto', 'sans-serif'],
+                    },
+                    // For the "liquid glass" effect
+                    backdropBlur: {
+                        'xl': '24px',
+                    }
+                }
+            }
+        }
+    </script>
+    
+    <style>
+        /* Custom styles for the gradient background and "liquid glass" card effect */
+        body {
+            transition: background-color 0.3s ease-in-out;
+        }
+        .main-bg-light {
+            background-image: linear-gradient(120deg, #a1c4fd 0%, #c2e9fb 100%);
+        }
+        .main-bg-dark {
+            background-image: linear-gradient(to top, #09203f 0%, #537895 100%);
+        }
+        .liquid-glass {
+            background: rgba(255, 255, 255, 0.25);
+            -webkit-backdrop-filter: blur(12px);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+        .dark .liquid-glass {
+            background: rgba(17, 25, 40, 0.3); /* Dark transparent color */
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        /* Custom scrollbar for a sleeker look */
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: rgba(0,0,0,0.2); border-radius: 10px; }
+        .dark ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.2); }
+    </style>
+</head>
+
+<body class="font-sans" :class="isDarkMode ? 'main-bg-dark' : 'main-bg-light'">
+
+    <div class="flex h-screen overflow-hidden text-gray-800 dark:text-gray-200">
+        
+        <!-- =================================================================
+        SIDEBAR
+        ================================================================== -->
+        <aside class="w-64 flex-shrink-0 p-5 hidden md:block">
+            <div class="flex items-center gap-3 mb-10">
+                <!-- Heroicon: Shield Check -->
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-9 w-9 text-blue-800 dark:text-blue-300" viewBox="0 0 20 20" fill="currentColor">
+                    <path fill-rule="evenodd" d="M10 1.944A11.954 11.954 0 012.166 5.026a11.954 11.954 0 01-1.122 6.134A11.954 11.954 0 0110 18.056a11.954 11.954 0 019.032-6.896 11.954 11.954 0 01-1.122-6.134A11.954 11.954 0 0110 1.944zM9 11.586l-2.293-2.293a1 1 0 00-1.414 1.414l3 3a1 1 0 001.414 0l5-5a1 1 0 10-1.414-1.414L9 11.586z" clip-rule="evenodd" />
+                </svg>
+                <h1 class="text-xl font-bold text-gray-900 dark:text-white">TrafficToken</h1>
+            </div>
+            <nav class="space-y-3">
+                <a href="./index.html" class="flex items-center gap-3 p-3 text-base rounded-lg hover:bg-white/40 dark:hover:bg-gray-700/50 transition-all duration-200 font-semibold bg-white/50 dark:bg-gray-700/60">
+                    <span>Dashboard</span>
+                </a>
+                <a href="./pages/inspections.html" class="flex items-center gap-3 p-3 text-base rounded-lg hover:bg-white/40 dark:hover:bg-gray-700/50 transition-all duration-200">
+                    <span>Inspection</span>
+                </a>
+                <a href="./pages/history.html" class="flex items-center gap-3 p-3 text-base rounded-lg hover:bg-white/40 dark:hover:bg-gray-700/50 transition-all duration-200">
+                    <span>History</span>
+                </a>
+                <a href="./pages/analytics.html" class="flex items-center gap-3 p-3 text-base rounded-lg hover:bg-white/40 dark:hover:bg-gray-700/50 transition-all duration-200">
+                    <span>Analytics</span>
+                </a>
+                <a href="./pages/settings.html" class="flex items-center gap-3 p-3 text-base rounded-lg hover:bg-white/40 dark:hover:bg-gray-700/50 transition-all duration-200">
+                    <span>Settings</span>
+                </a>
+            </nav>
+        </aside>
+
+        <!-- =================================================================
+        MAIN CONTENT
+        ================================================================== -->
+        <main class="flex-1 p-4 md:p-8 overflow-y-auto">
+            <!-- Header -->
+            <header class="flex justify-between items-center mb-8">
+                <div>
+                    <h2 class="text-3xl font-bold text-gray-900 dark:text-white">Dashboard</h2>
+                    <p class="text-gray-600 dark:text-gray-400">Welcome back, Officer Jane Doe!</p>
+                </div>
+                 <!-- Header Icons and Profile -->
+                <div class="flex items-center space-x-4">
+                    <button @click="isDarkMode = !isDarkMode; localStorage.setItem('isDarkMode', isDarkMode)" class="p-2 rounded-full hover:bg-white/40 dark:hover:bg-gray-700/50 transition-colors">
+                        <!-- Sun Icon -->
+                        <svg x-show="!isDarkMode" xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" /></svg>
+                        <!-- Moon Icon -->
+                        <svg x-show="isDarkMode" xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" /></svg>
+                    </button>
+                    <div class="relative">
+                        <img class="h-10 w-10 rounded-full object-cover" src="https://i.pravatar.cc/100?u=jane" alt="Officer Avatar">
+                        <span class="absolute bottom-0 right-0 block h-2.5 w-2.5 rounded-full bg-green-400 ring-2 ring-white dark:ring-gray-800"></span>
+                    </div>
+                </div>
+            </header>
+
+            <!-- Stats Cards -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+                <!-- Card 1 -->
+                <div class="liquid-glass rounded-2xl p-6 hover:shadow-xl transform hover:-translate-y-1 transition-all duration-300">
+                    <div class="flex justify-between items-start">
+                        <p class="font-medium text-gray-700 dark:text-gray-300">Inspections Today</p>
+                        <div class="text-green-500 text-sm font-semibold">+5%</div>
+                    </div>
+                    <p class="text-4xl font-bold text-gray-900 dark:text-white mt-2">128</p>
+                </div>
+                <!-- Card 2 -->
+                <div class="liquid-glass rounded-2xl p-6 hover:shadow-xl transform hover:-translate-y-1 transition-all duration-300">
+                    <div class="flex justify-between items-start">
+                        <p class="font-medium text-gray-700 dark:text-gray-300">Verified Vehicles</p>
+                        <div class="text-green-500 text-sm font-semibold">+2.1%</div>
+                    </div>
+                    <p class="text-4xl font-bold text-gray-900 dark:text-white mt-2">110</p>
+                </div>
+                <!-- Card 3 -->
+                <div class="liquid-glass rounded-2xl p-6 hover:shadow-xl transform hover:-translate-y-1 transition-all duration-300">
+                    <div class="flex justify-between items-start">
+                        <p class="font-medium text-gray-700 dark:text-gray-300">Flagged Vehicles</p>
+                         <div class="text-red-500 text-sm font-semibold">-1.5%</div>
+                    </div>
+                    <p class="text-4xl font-bold text-gray-900 dark:text-white mt-2">18</p>
+                </div>
+                <!-- Card 4 -->
+                <div class="liquid-glass rounded-2xl p-6 hover:shadow-xl transform hover:-translate-y-1 transition-all duration-300">
+                     <div class="flex justify-between items-start">
+                        <p class="font-medium text-gray-700 dark:text-gray-300">Pending Checks</p>
+                    </div>
+                    <p class="text-4xl font-bold text-gray-900 dark:text-white mt-2">3</p>
+                </div>
+            </div>
+
+            <!-- Analytics Chart and Recent Activity -->
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                <!-- Main Chart -->
+                <div class="lg:col-span-2 liquid-glass rounded-2xl p-6">
+                    <h3 class="font-bold text-lg text-gray-900 dark:text-white mb-4">Weekly Inspection Trends</h3>
+                    <div style="height: 300px;">
+                        <canvas id="inspectionChart"></canvas>
+                    </div>
+                </div>
+                <!-- Recent Activity -->
+                <div class="liquid-glass rounded-2xl p-6">
+                    <h3 class="font-bold text-lg text-gray-900 dark:text-white mb-4">Recent Activity</h3>
+                    <ul class="space-y-4">
+                        <li class="flex items-center gap-4">
+                            <div class="p-2 bg-blue-500/20 rounded-full"><svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-blue-500" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M6.267 3.455a3.066 3.066 0 001.745-.723 3.066 3.066 0 013.976 0 3.066 3.066 0 001.745.723 3.066 3.066 0 012.812 2.812c.051.643.304 1.254.723 1.745a3.066 3.066 0 010 3.976 3.066 3.066 0 00-.723 1.745 3.066 3.066 0 01-2.812 2.812 3.066 3.066 0 00-1.745.723 3.066 3.066 0 01-3.976 0 3.066 3.066 0 00-1.745-.723 3.066 3.066 0 01-2.812-2.812 3.066 3.066 0 00-.723-1.745 3.066 3.066 0 010-3.976 3.066 3.066 0 00.723-1.745 3.066 3.066 0 012.812-2.812zM9 11a1 1 0 112 0v1a1 1 0 11-2 0v-1zm1-4a1 1 0 100 2 1 1 0 000-2z" clip-rule="evenodd" /></svg></div>
+                            <div>
+                                <p class="font-semibold text-gray-800 dark:text-gray-200">Vehicle <span class="font-mono">ABC-123</span> verified.</p>
+                                <p class="text-sm text-gray-600 dark:text-gray-400">2 minutes ago</p>
+                            </div>
+                        </li>
+                        <li class="flex items-center gap-4">
+                            <div class="p-2 bg-red-500/20 rounded-full"><svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-red-500" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 3.01-1.742 3.01H4.42c-1.53 0-2.493-1.676-1.743-3.01l5.58-9.92zM10 13a1 1 0 110-2 1 1 0 010 2zm-1-4a1 1 0 011-1h.01a1 1 0 110 2H10a1 1 0 01-1-1z" clip-rule="evenodd" /></svg></div>
+                            <div>
+                                <p class="font-semibold text-gray-800 dark:text-gray-200">Vehicle <span class="font-mono">XYZ-789</span> flagged.</p>
+                                <p class="text-sm text-gray-600 dark:text-gray-400">15 minutes ago</p>
+                            </div>
+                        </li>
+                        <li class="flex items-center gap-4">
+                            <div class="p-2 bg-green-500/20 rounded-full"><svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-green-500" viewBox="0 0 20 20" fill="currentColor"><path d="M8 16.5a1.5 1.5 0 11-3 0 1.5 1.5 0 013 0zM15 16.5a1.5 1.5 0 11-3 0 1.5 1.5 0 013 0z" /><path d="M3 4a1 1 0 00-1 1v10a1 1 0 001 1h1.05a2.5 2.5 0 014.9 0H10a1 1 0 001-1V5a1 1 0 00-1-1H3zM14 7a1 1 0 00-1 1v5a1 1 0 001 1h2.05a2.5 2.5 0 014.9 0H19a1 1 0 001-1V8a1 1 0 00-1-1h-5z" /></svg></div>
+                            <div>
+                                <p class="font-semibold text-gray-800 dark:text-gray-200">Generated new token batch.</p>
+                                <p class="text-sm text-gray-600 dark:text-gray-400">1 hour ago</p>
+                            </div>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- =================================================================
+    CHART.JS INITIALIZATION SCRIPT
+    ================================================================== -->
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const ctx = document.getElementById('inspectionChart').getContext('2d');
+            let chart;
+
+            // Function to create or update the chart
+            function renderChart(isDark) {
+                const textColor = isDark ? '#E5E7EB' : '#374151'; // Gray-200 for dark, Gray-700 for light
+                const gridColor = isDark ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.1)';
+                
+                const chartConfig = {
+                    type: 'bar', // Can be 'line', 'bar', 'pie', etc.
+                    data: {
+                        labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
+                        datasets: [{
+                            label: 'Verified',
+                            data: [120, 130, 110, 145, 150, 135, 160],
+                            backgroundColor: 'rgba(59, 130, 246, 0.5)',
+                            borderColor: 'rgba(59, 130, 246, 1)',
+                            borderWidth: 2,
+                            borderRadius: 5,
+                        }, {
+                            label: 'Flagged',
+                            data: [15, 20, 12, 18, 10, 22, 17],
+                            backgroundColor: 'rgba(239, 68, 68, 0.5)',
+                            borderColor: 'rgba(239, 68, 68, 1)',
+                            borderWidth: 2,
+                            borderRadius: 5,
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: {
+                                labels: { color: textColor }
+                            },
+                            tooltip: {
+                                titleColor: textColor,
+                                bodyColor: textColor,
+                            }
+                        },
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                grid: { color: gridColor },
+                                ticks: { color: textColor }
+                            },
+                            x: {
+                                grid: { display: false },
+                                ticks: { color: textColor }
+                            }
+                        }
+                    }
+                };
+
+                if (chart) {
+                    chart.destroy();
+                }
+                chart = new Chart(ctx, chartConfig);
+            }
+
+            // Initial render
+            renderChart(localStorage.getItem('isDarkMode') === 'true');
+
+            // Use a MutationObserver to watch for class changes on the <html> element
+            const observer = new MutationObserver((mutationsList) => {
+                for (const mutation of mutationsList) {
+                    if (mutation.type === 'attributes' && mutation.attributeName === 'class') {
+                        const isDark = mutation.target.classList.contains('dark');
+                        renderChart(isDark);
+                    }
+                }
+            });
+
+            observer.observe(document.documentElement, { attributes: true });
+        });
+    </script>
+
+</body>
+</html>

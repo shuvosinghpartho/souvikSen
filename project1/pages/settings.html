@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="en" x-data="{ isDarkMode: localStorage.getItem('isDarkMode') === 'true' }" :class="{ 'dark': isDarkMode }">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale-1.0">
+    <title>Settings - Traffic Token System</title>
+
+    <!-- 1. Tailwind CSS via CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- 2. Alpine.js (for interactivity) via CDN -->
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+
+    <!-- Google Fonts (Roboto) -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+
+    <!-- Custom Tailwind Configuration -->
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Roboto', 'sans-serif'],
+                    },
+                    backdropBlur: { 'xl': '24px' }
+                }
+            }
+        }
+    </script>
+    
+    <style>
+        /* Shared styles from the original design */
+        body { transition: background-color 0.3s ease-in-out; }
+        .main-bg-light { background-image: linear-gradient(120deg, #a1c4fd 0%, #c2e9fb 100%); }
+        .main-bg-dark { background-image: linear-gradient(to top, #09203f 0%, #537895 100%); }
+        .liquid-glass {
+            background: rgba(255, 255, 255, 0.25);
+            -webkit-backdrop-filter: blur(12px);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+        .dark .liquid-glass {
+            background: rgba(17, 25, 40, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: rgba(0,0,0,0.2); border-radius: 10px; }
+        .dark ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.2); }
+
+        /* Custom style for the toggle switch */
+        .toggle-checkbox:checked {
+            right: 0;
+            border-color: #3b82f6; /* blue-600 */
+        }
+        .toggle-checkbox:checked + .toggle-label {
+            background-color: #3b82f6; /* blue-600 */
+        }
+    </style>
+</head>
+
+<body class="font-sans" :class="isDarkMode ? 'main-bg-dark' : 'main-bg-light'">
+
+    <div class="flex h-screen overflow-hidden text-gray-800 dark:text-gray-200">
+        
+        <!-- =================================================================
+        SIDEBAR
+        ================================================================== -->
+        <aside class="w-64 flex-shrink-0 p-5 hidden md:block">
+            <div class="flex items-center gap-3 mb-10">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-9 w-9 text-blue-800 dark:text-blue-300" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 1.944A11.954 11.954 0 012.166 5.026a11.954 11.954 0 01-1.122 6.134A11.954 11.954 0 0110 18.056a11.954 11.954 0 019.032-6.896 11.954 11.954 0 01-1.122-6.134A11.954 11.954 0 0110 1.944zM9 11.586l-2.293-2.293a1 1 0 00-1.414 1.414l3 3a1 1 0 001.414 0l5-5a1 1 0 10-1.414-1.414L9 11.586z" clip-rule="evenodd" /></svg>
+                <h1 class="text-xl font-bold text-gray-900 dark:text-white">TrafficToken</h1>
+            </div>
+      <!-- THIS CODE GOES INSIDE settings.html -->
+<nav class.="space-y-3">
+    <!-- This link MUST point to ./index.html -->
+    <a href="../index.html" class="flex items-center gap-3 p-3 text-base rounded-lg hover:bg-white/40 dark:hover:bg-gray-700/50 transition-all duration-200">
+        <span>Dashboard</span>
+    </a>
+
+    <a href="./inspections.html" class="flex items-center gap-3 p-3 text-base rounded-lg hover:bg-white/40 dark:hover:bg-gray-700/50 transition-all duration-200">
+        <span>Inspection</span>
+    </a>
+
+    <a href="./history.html" class="flex items-center gap-3 p-3 text-base rounded-lg hover:bg-white/40 dark:hover:bg-gray-700/50 transition-all duration-200">
+        <span>History</span>
+    </a>
+
+    <a href="./analytics.html" class="flex items-center gap-3 p-3 text-base rounded-lg hover:bg-white/40 dark:hover:bg-gray-700/50 transition-all duration-200">
+        <span>Analytics</span>
+    </a>
+
+    <!-- This is the active link for this page -->
+    <a href="./settings.html" class="flex items-center gap-3 p-3 text-base rounded-lg font-semibold bg-white/50 dark:bg-gray-700/60 transition-all duration-200">
+        <span>Settings</span>
+    </a>
+</nav>
+        </aside>
+
+        <!-- =================================================================
+        MAIN CONTENT
+        ================================================================== -->
+        <main class="flex-1 p-4 md:p-8 overflow-y-auto">
+            <!-- Header -->
+            <header class="flex justify-between items-center mb-8">
+                <div>
+                    <h2 class="text-3xl font-bold text-gray-900 dark:text-white">Settings</h2>
+                    <p class="text-gray-600 dark:text-gray-400">Manage your profile and application preferences.</p>
+                </div>
+            </header>
+
+            <div x-data="{
+                showSuccess: false,
+                saveSettings() {
+                    this.showSuccess = true;
+                    setTimeout(() => this.showSuccess = false, 3000);
+                }
+            }">
+                <!-- Settings Grid -->
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                    
+                    <!-- Left Column: Profile and Security -->
+                    <div class="lg:col-span-2 space-y-6">
+                        <!-- Profile Information Card -->
+                        <div class="liquid-glass rounded-2xl p-6 md:p-8 shadow-lg">
+                            <h3 class="text-xl font-bold text-gray-900 dark:text-white mb-6">Profile Information</h3>
+                            <div class="flex flex-col sm:flex-row items-center gap-6">
+                                <div class="relative">
+                                    <img class="h-24 w-24 rounded-full object-cover ring-4 ring-white/20" src="https://i.pravatar.cc/150?u=jane" alt="Officer Avatar">
+                                    <button class="absolute -bottom-1 -right-1 p-1 bg-blue-600 rounded-full hover:bg-blue-700 transition">
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-white" viewBox="0 0 20 20" fill="currentColor"><path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z" /></svg>
+                                    </button>
+                                </div>
+                                <div class="w-full text-center sm:text-left">
+                                    <p class="text-2xl font-bold text-gray-900 dark:text-white">Jane M. Doe</p>
+                                    <p class="text-gray-600 dark:text-gray-400">Officer ID: JDoe_01</p>
+                                </div>
+                            </div>
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
+                                <div>
+                                    <label class="font-semibold text-sm text-gray-700 dark:text-gray-300">Full Name</label>
+                                    <input type="text" value="Jane M. Doe" class="mt-2 w-full px-4 py-2 bg-white/30 dark:bg-black/20 rounded-lg border-none focus:ring-2 focus:ring-blue-500 text-gray-900 dark:text-white">
+                                </div>
+                                <div>
+                                    <label class="font-semibold text-sm text-gray-700 dark:text-gray-300">Email Address</label>
+                                    <input type="email" value="j.doe@trafficdept.gov" class="mt-2 w-full px-4 py-2 bg-white/30 dark:bg-black/20 rounded-lg border-none focus:ring-2 focus:ring-blue-500 text-gray-900 dark:text-white">
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Security Card -->
+                        <div class="liquid-glass rounded-2xl p-6 md:p-8 shadow-lg">
+                            <h3 class="text-xl font-bold text-gray-900 dark:text-white mb-6">Security</h3>
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                <div>
+                                    <label class="font-semibold text-sm text-gray-700 dark:text-gray-300">Current Password</label>
+                                    <input type="password" placeholder="••••••••" class="mt-2 w-full px-4 py-2 bg-white/30 dark:bg-black/20 rounded-lg border-none focus:ring-2 focus:ring-blue-500 text-gray-900 dark:text-white">
+                                </div>
+                                <div>
+                                    <label class="font-semibold text-sm text-gray-700 dark:text-gray-300">New Password</label>
+                                    <input type="password" placeholder="••••••••" class="mt-2 w-full px-4 py-2 bg-white/30 dark:bg-black/20 rounded-lg border-none focus:ring-2 focus:ring-blue-500 text-gray-900 dark:text-white">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Right Column: Notifications and Theme -->
+                    <div class="lg:col-span-1 space-y-6">
+                        <div class="liquid-glass rounded-2xl p-6 md:p-8 shadow-lg">
+                            <h3 class="text-xl font-bold text-gray-900 dark:text-white mb-6">Notifications</h3>
+                            <div class="space-y-4">
+                                <!-- Toggle 1 -->
+                                <div class="flex items-center justify-between">
+                                    <span class="font-semibold">Flagged Vehicle Alerts</span>
+                                    <div class="relative inline-block w-10 mr-2 align-middle select-none transition duration-200 ease-in">
+                                        <input type="checkbox" name="toggle1" id="toggle1" class="toggle-checkbox absolute block w-6 h-6 rounded-full bg-white border-4 appearance-none cursor-pointer" checked/>
+                                        <label for="toggle1" class="toggle-label block overflow-hidden h-6 rounded-full bg-gray-300 cursor-pointer"></label>
+                                    </div>
+                                </div>
+                                <!-- Toggle 2 -->
+                                <div class="flex items-center justify-between">
+                                    <span class="font-semibold">System Updates</span>
+                                    <div class="relative inline-block w-10 mr-2 align-middle select-none transition duration-200 ease-in">
+                                        <input type="checkbox" name="toggle2" id="toggle2" class="toggle-checkbox absolute block w-6 h-6 rounded-full bg-white border-4 appearance-none cursor-pointer" checked/>
+                                        <label for="toggle2" class="toggle-label block overflow-hidden h-6 rounded-full bg-gray-300 cursor-pointer"></label>
+                                    </div>
+                                </div>
+                                <!-- Toggle 3 -->
+                                <div class="flex items-center justify-between">
+                                    <span class="font-semibold">Email Summaries</span>
+                                    <div class="relative inline-block w-10 mr-2 align-middle select-none transition duration-200 ease-in">
+                                        <input type="checkbox" name="toggle3" id="toggle3" class="toggle-checkbox absolute block w-6 h-6 rounded-full bg-white border-4 appearance-none cursor-pointer" />
+                                        <label for="toggle3" class="toggle-label block overflow-hidden h-6 rounded-full bg-gray-300 cursor-pointer"></label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="liquid-glass rounded-2xl p-6 md:p-8 shadow-lg">
+                            <h3 class="text-xl font-bold text-gray-900 dark:text-white mb-6">Appearance</h3>
+                            <div class="flex justify-around">
+                                <button @click="isDarkMode = false; localStorage.setItem('isDarkMode', false)" class="text-center">
+                                    <div class="p-2 rounded-xl transition-all" :class="!isDarkMode ? 'ring-2 ring-blue-500' : 'hover:bg-white/20'">
+                                        <div class="w-16 h-12 bg-gray-200 rounded-lg flex items-center justify-center">
+                                            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-gray-700" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" /></svg>
+                                        </div>
+                                    </div>
+                                    <p class="font-semibold mt-2">Light</p>
+                                </button>
+                                <button @click="isDarkMode = true; localStorage.setItem('isDarkMode', true)" class="text-center">
+                                    <div class="p-2 rounded-xl transition-all" :class="isDarkMode ? 'ring-2 ring-blue-500' : 'hover:bg-white/20 dark:hover:bg-black/20'">
+                                        <div class="w-16 h-12 bg-gray-800 rounded-lg flex items-center justify-center">
+                                            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-gray-200" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" /></svg>
+                                        </div>
+                                    </div>
+                                    <p class="font-semibold mt-2">Dark</p>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Action Buttons -->
+                <div class="mt-6 flex justify-end items-center gap-4">
+                     <div x-show="showSuccess" x-transition:enter.duration.300ms x-transition:leave.duration.300ms class="font-semibold text-green-700 dark:text-green-400">
+                        ✓ Settings Saved!
+                    </div>
+                    <button @click="saveSettings()" class="px-6 py-3 font-bold text-white bg-blue-600 rounded-lg hover:bg-blue-700 active:scale-95 transition-all duration-200 shadow-lg hover:shadow-blue-500/50">
+                        Save Changes
+                    </button>
+                    <button class="px-6 py-3 font-bold text-red-700 dark:text-red-300 bg-red-500/20 rounded-lg hover:bg-red-500/30 transition-colors">
+                        Log Out
+                    </button>
+                </div>
+            </div>
+        </main>
+    </div>
+
+</body>
+</html>

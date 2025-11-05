@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en" x-data="{ isDarkMode: localStorage.getItem('isDarkMode') === 'true' }" :class="{ 'dark': isDarkMode }">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - Traffic Token System</title>
+
+    <!-- 1. Tailwind CSS via CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- 2. Alpine.js (for interactivity) via CDN -->
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+
+    <!-- Google Fonts (Roboto) -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+
+    <!-- Custom Tailwind Configuration -->
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: { sans: ['Roboto', 'sans-serif'] },
+                    backdropBlur: { 'xl': '24px' }
+                }
+            }
+        }
+    </script>
+    
+    <style>
+        /* Shared styles from the original design */
+        body { transition: background-color 0.3s ease-in-out; }
+        .main-bg-light { background-image: linear-gradient(120deg, #a1c4fd 0%, #c2e9fb 100%); }
+        .main-bg-dark { background-image: linear-gradient(to top, #09203f 0%, #537895 100%); }
+        .form-card {
+            background: rgba(255, 255, 255, 0.25);
+            -webkit-backdrop-filter: blur(12px);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+        .dark .form-card {
+            background: rgba(17, 25, 40, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+    </style>
+</head>
+
+<body class="font-sans" :class="isDarkMode ? 'main-bg-dark' : 'main-bg-light'">
+
+    <div class="min-h-screen flex flex-col items-center justify-center p-4 text-gray-800 dark:text-gray-200">
+        
+        <!-- Logo Header -->
+        <div class="flex items-center gap-3 mb-6">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-10 w-10 text-blue-800 dark:text-blue-300" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 1.944A11.954 11.954 0 012.166 5.026a11.954 11.954 0 01-1.122 6.134A11.954 11.954 0 0110 18.056a11.954 11.954 0 019.032-6.896 11.954 11.954 0 01-1.122-6.134A11.954 11.954 0 0110 1.944zM9 11.586l-2.293-2.293a1 1 0 00-1.414 1.414l3 3a1 1 0 001.414 0l5-5a1 1 0 10-1.414-1.414L9 11.586z" clip-rule="evenodd" /></svg>
+            <h1 class="text-2xl font-bold text-gray-900 dark:text-white">TrafficToken System</h1>
+        </div>
+
+        <!-- Alpine.js Component for Login/Signup Forms -->
+        <div x-data="{
+                isLoginView: true,
+                email: '',
+                password: '',
+                error: '',
+                login() {
+                    // This is our simple, no-backend validation
+                    if (this.email.toLowerCase() === 'souvik@gmail.com' && this.password === 'souvikcse') {
+                        this.error = '';
+                        // On successful login, redirect to the dashboard
+                        window.location.href = './index.html';
+                    } else {
+                        this.error = 'Invalid email or password. Please try again.';
+                    }
+                }
+            }" 
+            class="w-full max-w-md form-card rounded-2xl p-8 shadow-lg"
+        >
+            
+            <!-- Login Form -->
+            <div x-show="isLoginView" x-transition>
+                <h2 class="text-3xl font-bold text-center text-gray-900 dark:text-white">Welcome Back</h2>
+                <p class="text-center text-gray-600 dark:text-gray-400 mt-2 mb-6">Sign in to continue</p>
+                
+                <form @submit.prevent="login()">
+                    <div class="space-y-4">
+                        <div>
+                            <label class="font-semibold text-sm text-gray-700 dark:text-gray-300">Email Address</label>
+                            <input x-model="email" type="email" placeholder="you@example.com" required class="mt-2 w-full px-4 py-3 bg-white/30 dark:bg-black/20 rounded-lg border-none focus:ring-2 focus:ring-blue-500 text-gray-900 dark:text-white">
+                        </div>
+                        <div>
+                            <label class="font-semibold text-sm text-gray-700 dark:text-gray-300">Password</label>
+                            <input x-model="password" type="password" placeholder="••••••••" required class="mt-2 w-full px-4 py-3 bg-white/30 dark:bg-black/20 rounded-lg border-none focus:ring-2 focus:ring-blue-500 text-gray-900 dark:text-white">
+                        </div>
+                    </div>
+                    
+                    <!-- Error Message -->
+                    <div x-show="error" x-text="error" class="text-red-500 font-semibold text-sm mt-4 text-center"></div>
+
+                    <button type="submit" class="mt-6 w-full py-3 text-lg font-bold text-white bg-blue-600 rounded-lg hover:bg-blue-700 active:scale-95 transition-all duration-200 shadow-lg hover:shadow-blue-500/50">
+                        Login
+                    </button>
+                </form>
+
+                <p class="text-center text-sm mt-6">
+                    Don't have an account? 
+                    <button @click="isLoginView = false; error = ''" class="font-semibold text-blue-600 dark:text-blue-400 hover:underline">
+                        Create one now
+                    </button>
+                </p>
+            </div>
+
+            <!-- Sign-up Form -->
+            <div x-show="!isLoginView" x-transition>
+                <h2 class="text-3xl font-bold text-center text-gray-900 dark:text-white">Create Account</h2>
+                <p class="text-center text-gray-600 dark:text-gray-400 mt-2 mb-6">Get started with a new account</p>
+                
+                <form @submit.prevent="">
+                    <div class="space-y-4">
+                        <div>
+                            <label class="font-semibold text-sm text-gray-700 dark:text-gray-300">Full Name</label>
+                            <input type="text" placeholder="Jane Doe" required class="mt-2 w-full px-4 py-3 bg-white/30 dark:bg-black/20 rounded-lg border-none focus:ring-2 focus:ring-blue-500 text-gray-900 dark:text-white">
+                        </div>
+                        <div>
+                            <label class="font-semibold text-sm text-gray-700 dark:text-gray-300">Email Address</label>
+                            <input type="email" placeholder="you@example.com" required class="mt-2 w-full px-4 py-3 bg-white/30 dark:bg-black/20 rounded-lg border-none focus:ring-2 focus:ring-blue-500 text-gray-900 dark:text-white">
+                        </div>
+                        <div>
+                            <label class="font-semibold text-sm text-gray-700 dark:text-gray-300">Password</label>
+                            <input type="password" placeholder="••••••••" required class="mt-2 w-full px-4 py-3 bg-white/30 dark:bg-black/20 rounded-lg border-none focus:ring-2 focus:ring-blue-500 text-gray-900 dark:text-white">
+                        </div>
+                    </div>
+                    
+                    <button type="submit" class="mt-6 w-full py-3 text-lg font-bold text-white bg-blue-600 rounded-lg hover:bg-blue-700 active:scale-95 transition-all duration-200 shadow-lg hover:shadow-blue-500/50">
+                        Create Account
+                    </button>
+                </form>
+
+                <p class="text-center text-sm mt-6">
+                    Already have an account? 
+                    <button @click="isLoginView = true; error = ''" class="font-semibold text-blue-600 dark:text-blue-400 hover:underline">
+                        Login here
+                    </button>
+                </p>
+            </div>
+
+        </div>
+    </div>
+
+</body>
+</html>
